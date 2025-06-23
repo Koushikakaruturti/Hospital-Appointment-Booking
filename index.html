@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Healthcare Portal</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background-image: url("hospital.jpg");
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-attachment: fixed;
+      background-size: cover;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: 60px auto;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 35px;
+      border-radius: 18px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 28px;
+      background: -webkit-linear-gradient(#007acc, #00aaff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    label {
+      display: block;
+      margin-top: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 15px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 30px;
+      background: linear-gradient(to right, #007acc, #0099e6);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #005f99, #007acc);
+    }
+
+    .success-message {
+      display: none;
+      margin-top: 25px;
+      padding: 20px;
+      background-color: #e6ffed;
+      color: #205c34;
+      border: 2px solid #a6e9b9;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 500;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .success-message span {
+      display: block;
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏥 Book Your Appointment</h1>
+    <form id="appointmentForm">
+      <label for="patientName">Your Name</label>
+      <input type="text" id="patientName" name="patientName" placeholder="Enter your name" required>
+
+      <label for="disease">Disease / Problem</label>
+      <input type="text" id="disease" name="disease" placeholder="e.g., Fever, Headache" required>
+
+      <label for="appointmentTime">Preferred Date & Time</label>
+      <input type="datetime-local" id="appointmentTime" name="appointmentTime" required>
+
+      <button type="submit">Book Appointment</button>
+    </form>
+
+    <div class="success-message" id="successMessage">
+      ✅ Appointment successfully booked! Our team will contact you shortly.
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('appointmentForm');
+    const message = document.getElementById('successMessage');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const appointmentData = {
+        patientName: document.getElementById('patientName').value,
+        disease: document.getElementById('disease').value,
+        appointmentTime: document.getElementById('appointmentTime').value
+      };
+
+      fetch('http://localhost:3000/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(appointmentData)
+      })
+      .then(res => {
+        if (res.ok) {
+          form.reset();
+          message.classList.add('show');
+          sessionStorage.setItem('appointmentSuccess', 'true');
+        } else {
+          alert('❌ Failed to book appointment. Try again later.');
+        }
+      })
+      .catch(err => {
+        console.error('Error:', err);
+        alert('❌ Could not connect to server.');
+      });
+    });
+
+    // Restore message if already booked
+    window.onload = function () {
+      if (sessionStorage.getItem('appointmentSuccess') === 'true') {
+        message.classList.add('show');
+      }
+    };
+  </script>
+</body>
+</html>
